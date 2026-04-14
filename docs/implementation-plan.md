@@ -73,6 +73,7 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Motion animations for weather card transitions, search dropdown appear/disappear
 - Responsive design polish
 - Final accessibility audit
+- Use app svg logo as favicon
 - **Commit:** `feat: add API caching, rate-limit handling, and UI animations`
 
 ### Phase 6 — Documentation

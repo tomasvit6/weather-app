@@ -8,7 +8,7 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 
 ## Phase 1 — Project Scaffolding & Architecture
 
-**First prompt:**
+**Phase 1 prompt:**
 
 > Task: Set up a new weather web app project with production-grade architecture
 >
@@ -53,7 +53,7 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 
 ## Phase 2 — API Layer & Zod Validation
 
-**Second prompt:**
+**Phase 2 prompt:**
 
 > Task: Implement weather and geocoding API layer with Zod validation
 >
@@ -116,7 +116,7 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 
 ## Phase 3 — Core UI Components, States & Theming
 
-**Third prompt:**
+**Phase 3 prompt:**
 
 > Task: Build core UI components — SearchBar, WeatherCard, SearchHistory
 >
@@ -182,3 +182,44 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 **Used for:** SearchBar, WeatherCard, SearchHistory, WeatherApp orchestrator, weather icon mapping, header/footer, theme toggle, ThemeProvider, page integration, glassmorphism, weather colors, type-safe weather conditions, geolocation, reverse geocoding, auto-refetch with "last updated" display
 
 **Commit:** `feat: implement search bar with autocomplete, weather display, and search history`
+
+## Phase 4 — Testing
+
+**Phase 4 prompt:**
+
+> Task: Add unit and component tests
+>
+> Context
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md and docs/testing-guidelines.md before starting — they define the testing philosophy, what to test, what NOT to test, and mocking guidelines.
+>
+> This is a weather web app (senior engineer take-home for Axiology). Phases 1-3 are complete. This is Phase 4 — adding meaningful test coverage for components, hooks, stores, and remaining lib functions. The app is fully functional.
+>
+> What already has tests (DO NOT duplicate)
+>
+> - src/lib/schemas.test.ts — Zod schema parsing, defaults, transforms (is_day → boolean)
+> - src/lib/weather-codes.test.ts — getWeatherCondition for known codes, unknown fallback
+> - src/app/api/weather/route.test.ts — input validation, response transformation, error handling
+> - src/app/api/geocoding/route.test.ts — same pattern as weather route
+> - src/app/api/reverse-geocoding/route.test.ts — same pattern
+> - src/\_\_tests\_\_/contracts/ — contract tests against live APIs (separate config)
+>
+> What needs tests: (1) weather-icons — getWeatherIcon/getWeatherColor/getWeatherGradient for all WeatherCondition values, distinct icons for different categories. (2) history-store — addEntry prepend/dedup/cap-at-10, removeEntry, clearHistory, Zustand tested via getState/setState. (3) use-debounce — initial value, delayed update, timer reset with fake timers. (4) SearchBar — autocomplete dropdown, keyboard nav (ArrowDown/Up/Enter/Escape), ARIA combobox pattern, loading/no-results states, input clears after selection. Mock use-geocoding and use-debounce. (5) WeatherCard — four states (empty/loading/error/loaded), temperature rounding, aria-live. Mock weather-icons. (6) SearchHistory — store integration, entry click/remove/clear, aria-labels. Mock weather-icons. (7) Shared test-utils with NextIntlClientProvider + QueryClientProvider wrapper.
+>
+> (Full prompt with detailed specs for each test file, mocking strategies, helper factories, coverage targets, and important notes about what NOT to test.)
+
+**Additional prompts (iterative refinements):**
+
+- Audit test suite against modern React testing best practices — remove low-value tests, eliminate unnecessary mocks, verify each test catches real regressions
+
+**Refinements during implementation:**
+
+- Removed weather-icons mock from weather-card and search-history tests — pure lookup functions render fine in jsdom, mocking them hid integration bugs. Use real functions, mock only at boundaries (network, timers, browser APIs).
+- Replaced `.animate-spin` CSS class query with `.lucide-loader-circle` component identity class for loading indicator assertion — less brittle.
+- Verified Lucide SVG icons render correctly in jsdom — no mock needed despite initial assumption.
+
+**Used for:** Unit tests for lib/weather-icons, stores/history-store, hooks/use-debounce. Component tests for search-bar, weather-card, search-history. Shared test utilities.
+
+**Commit:** `test: add unit and component tests`
