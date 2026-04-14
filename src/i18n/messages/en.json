@@ -65,7 +65,13 @@
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try again.",
     "tryAgain": "Try again",
-    "rateLimited": "Too many requests. Please wait a moment and try again."
+    "rateLimited": "Too many requests. Please wait a moment and try again.",
+    "weatherFetchFailed": "Couldn't load weather",
+    "tryAgainLater": "Please try again in a moment."
+  },
+  "geolocation": {
+    "denied": "Location access denied",
+    "deniedDescription": "Search for a location manually, or allow location access in your browser settings to auto-detect."
   },
   "theme": {
     "toggle": "Toggle theme"

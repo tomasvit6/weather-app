@@ -47,6 +47,7 @@ The more your tests resemble the way your software is used, the more confidence 
 - **shadcn/ui component internals** — they're tested upstream
 - **CSS/styling details** — visual testing is out of scope
 - **Trivial code** — simple getters, pass-through functions, and type-only transformations
+- **Lookup tables** — a test that asserts a static map returns its own values (e.g. `weather-code → label`) breaks and gets updated together with the map. It pads coverage without catching anything real.
 - **Third-party library behavior** — don't test that `date-fns` formats dates correctly or that Zod rejects invalid types. Test your code that uses these libraries.
 - **Things TypeScript already catches** — don't write tests that verify type-level constraints
 - **Tests already covered by other assertions** — if a `toEqual` on the full response shape already proves a field is absent, don't add a separate `not.toHaveProperty` test for it

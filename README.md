@@ -13,26 +13,27 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## Scripts
 
-| Command                 | Description                    |
-| ----------------------- | ------------------------------ |
-| `npm run dev`           | Start development server       |
-| `npm run build`         | Production build               |
-| `npm start`             | Start production server        |
-| `npm run lint`          | Run ESLint                     |
-| `npm run format`        | Format code with Prettier      |
-| `npm test`              | Run tests                      |
-| `npm run test:watch`    | Run tests in watch mode        |
-| `npm run test:coverage` | Run tests with coverage report |
+| Command                 | Description                          |
+| ----------------------- | ------------------------------------ |
+| `npm run dev`           | Start development server             |
+| `npm run build`         | Production build                     |
+| `npm start`             | Start production server              |
+| `npm run lint`          | Run ESLint                           |
+| `npm run format`        | Format code with Prettier            |
+| `npm test`              | Run tests                            |
+| `npm run test:watch`    | Run tests in watch mode              |
+| `npm run test:coverage` | Run tests with coverage report       |
+| `npm run test:contract` | Run contract tests against live APIs |
 
 ## Tech Stack
 
 | Category            | Choice                                          | Why                                                                                                                                                                                                    |
 | ------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **Framework**       | Next.js 15 (App Router) + React 19 + TypeScript | Industry standard for production React apps. App Router enables server components, streaming, and API routes in one project. TypeScript strict mode catches bugs at compile time.                      |
+| **Framework**       | Next.js 16 (App Router) + React 19 + TypeScript | Industry standard for production React apps. App Router enables server components, streaming, and API routes in one project. TypeScript strict mode catches bugs at compile time.                      |
 | **Styling**         | Tailwind CSS 4 + shadcn/ui + Motion             | Tailwind for rapid utility-first styling. shadcn/ui provides accessible, customizable base components without lock-in (code lives in your repo). Motion for polished animations.                       |
 | **Server State**    | @tanstack/react-query                           | Handles caching, background refetching, loading/error states, and stale-while-revalidate out of the box. Eliminates boilerplate for async data management.                                             |
 | **Client State**    | Zustand                                         | Minimal API (~1KB), no boilerplate, built-in localStorage persistence via middleware. Scales cleanly without the ceremony of Redux.                                                                    |
-| **HTTP Client**     | Axios                                           | Interceptors for global error handling, request/response transforms, timeouts, and cleaner API than raw fetch for typed requests.                                                                      |
+| **HTTP Client**     | Axios                                           | Timeout configuration, typed responses, and a cleaner API than raw fetch. Interceptor support is available if global request/response handling is needed later.                                        |
 | **Validation**      | Zod                                             | Runtime validation for external API responses. Type-safe schema definitions with `z.infer<>` for zero type duplication. Catches API contract drift at runtime.                                         |
 | **i18n**            | next-intl                                       | Type-safe internationalization with minimal setup. Even with a single locale, it enforces a clean separation of UI text from components — easy to add languages later without touching component code. |
 | **Date Formatting** | date-fns                                        | Tree-shakeable, immutable date utilities. Only imports what you use — no moment.js-style bundle bloat.                                                                                                 |
@@ -50,7 +51,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - **Co-located types** — module-specific types live next to their code. Only shared types (Location, WeatherData, SearchHistoryEntry) live in `src/types/`.
 - **WCAG 2.1 AA baseline** — semantic HTML, keyboard navigation, aria attributes, and contrast ratios are enforced through coding guidelines and ESLint (jsx-a11y). Not a full audit, but the foundations are in place for every component.
 - **SEO via generateMetadata** — every public page exports localized metadata (title, description) through next-intl. Not a full SEO strategy (no sitemap, no JSON-LD) — appropriate for a single-page app, but the pattern scales if pages are added.
-- **No over-engineering** — every dependency earns its place by solving a real problem with minimal setup cost. No Redux, no ORM, no CI pipeline — the scope is a polished single-page weather app.
+- **No over-engineering** — every dependency earns its place by solving a real problem with minimal setup cost. No Redux, no ORM — the scope is a polished single-page weather app.
+- **CI on every PR** — `.github/workflows/ci.yml` runs lint, format check, tests, and build. Contract tests are excluded from CI and run on demand (they hit live APIs).
 
 ## Project Structure
 
@@ -78,7 +80,7 @@ src/
 - **Modern evergreen browser** — ES2022+, `localStorage`, and `fetch` are available. No IE / legacy polyfills shipped.
 - **English-speaking audience** — only the English locale is bundled; the i18n infrastructure is in place so adding languages is a JSON file, not a refactor.
 - **Take-home evaluation scope** — polish, correctness, and documentation were prioritized over breadth of features and over concerns that only appear under real production traffic (horizontal scaling, DDoS, multi-region).
-- **Node ≥ 20** — required by Next.js 15.
+- **Node ≥ 20** — pinned via `.nvmrc` and `engines` in `package.json` (required by Next.js 16).
 
 ### Tradeoffs
 
@@ -88,7 +90,7 @@ src/
 - **Axios over native `fetch`** (~15 KB) — gained: interceptors, timeout configuration, and cleaner typed requests. Worth the weight for a real API layer.
 - **Zustand + React Query split** — two state libraries, each owning one concern cleanly (client state vs. server cache). Simpler in practice than forcing one library to do both.
 - **Unit + component + contract tests; no E2E.** The critical paths are covered by Vitest + RTL plus contract tests that hit the real Open-Meteo endpoints to catch schema drift. A Playwright happy-path suite is the natural next step and is noted as a follow-up.
-- **Husky + lint-staged locally; no CI pipeline yet.** Pre-commit hooks catch issues before code enters the repo. A GitHub Actions workflow running lint + test + build on push is the obvious next addition.
+- **Husky locally + GitHub Actions CI.** Pre-commit hooks catch issues before code enters the repo; CI re-runs lint, format check, tests, and build on every PR. Contract tests are excluded from CI since they hit live APIs — they belong on a separate scheduled workflow if added later.
 - **No Open Graph / Twitter card metadata.** `generateMetadata` sets title and description; social share previews are deliberately skipped — they'd require dedicated preview images and design work that doesn't belong in this scope. The favicon is wired via `src/app/icon.svg`.
 
 ### Known Limitations

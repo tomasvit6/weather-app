@@ -335,3 +335,42 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 **Used for:** restructuring README into Assumptions/Tradeoffs/Known Limitations, marking Phase 6 ✅ in `implementation-plan.md`, finalizing Phase 7 section, appending Phase 6 to `ai-prompts.md`, removing unused Next.js default assets from `public/`
 
 **Commit:** `docs: update README and finalize phase 6 documentation`
+
+## Phase 7 — Submission Polish
+
+**Phase 7 prompt:**
+
+> Task: Submission polish — senior engineering follow-ups
+>
+> Context
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md and docs/implementation-plan.md before starting.
+>
+> This is the final phase. Phases 1-6 are complete — app is fully functional with tests, caching, animations, responsive design, and documentation. This is Phase 7 — five focused items that signal reproducibility, CI hygiene, user-facing error states, and observability.
+>
+> Requirements
+>
+> 1. Clean up unused `public/*.svg` Next.js defaults (already removed in Phase 6 — verified, no-op).
+> 2. Pin Node version — `.nvmrc` with `20`, `engines.node >= 20` in `package.json`.
+> 3. GitHub Actions CI workflow — `.github/workflows/ci.yml`, single `verify` job on `ubuntu-latest`, running `lint`, `format:check`, `test`, `build` on push to `main` and every PR. `actions/setup-node@v4` with `node-version-file: .nvmrc` and npm cache. No deploy step.
+> 4. API error toast wiring — new `src/hooks/use-api-error-toast.ts` that shows `error.rateLimited` on axios 429 and `error.weatherFetchFailed` + `error.tryAgainLater` description otherwise. Call from `weather-app.tsx` with the `error` from `useWeather`. i18n keys added to `en.json`.
+> 5. Geolocation denial — inline message. Change `useGeolocation` return shape to `{ location, status }` where `status` is `'idle' | 'loading' | 'granted' | 'denied' | 'unavailable'`. Render a subtle muted line in `weather-app.tsx` when status is `'denied'` and no manual search selected.
+> 6. Tests for new code — only where they catch something real. A direct `use-geolocation` test is impractical under jsdom; `use-api-error-toast` is thin enough that a test would restate the implementation.
+> 7. Update `docs/implementation-plan.md` — mark Phase 7 ✅ and finalize the Target Commit History.
+> 8. Append this Phase 7 entry to `docs/ai-prompts.md`.
+> 9. Single commit: `chore: submission polish`.
+
+**Additional prompts (iterative refinements):**
+
+- Trim the original Phase 7 scope — direct unit tests for `useWeather` / `useGeocodingSearch` and a Playwright E2E setup dropped as disproportionate for a take-home (tests would mostly assert React Query works; Playwright is a full harness to install). Kept: Node pinning, CI, toast hook, geolocation UX, minimal tests for the new hook.
+- Drop `openGraph` / `twitter` metadata from Phase 7 scope — proper social previews need designed preview images. Documented as a deliberate tradeoff in `README.md` instead.
+- `useGeolocation` refactor needed to avoid a `react-hooks/set-state-in-effect` ESLint error when the status was written synchronously inside the effect body. Final shape: `useSyncExternalStore` detects `navigator.geolocation` support (hydration-safe, per `CLAUDE.md` guidance for client-only values); a separate `resolvedStatus` state (`null` while pending) tracks terminal transitions set from the position/error callbacks; the exposed `status` is derived — no synchronous `setState` in an effect body.
+- Audited the existing test suite against its own philosophy. Deleted `src/lib/weather-codes.test.ts`, `src/lib/weather-icons.test.ts`, and `src/hooks/use-api-error-toast.test.tsx` — all three restated their implementation rather than asserting behavior (lookup tables that test their own values; a toast hook whose test set up an axios fixture just to observe the call it wired). Added a "lookup tables" bullet to `docs/testing-guidelines.md` "What NOT to Test" so the rationale is on record. Net suite: 9 files / 75 tests, every one carrying weight.
+- Added a `concurrency` block to `ci.yml` so superseded runs on the same branch get cancelled instead of racing. Inline comment documents why contract tests aren't in this workflow (live dependencies would flake PRs; they belong on a scheduled workflow if added later).
+- README audit against current state surfaced several stale claims: framework listed as "Next.js 15" (package is 16.2.3); Architecture Decisions still said "no CI pipeline"; Tradeoffs still said "no CI pipeline yet"; Assumptions tied Node ≥ 20 to Next.js 15 without mentioning the new `.nvmrc` / `engines` pinning; the Axios "why" column claimed "interceptors for global error handling" even though Phase 5 removed the only interceptor and `src/lib/axios.ts` is now a plain instance; Scripts table was missing `npm run test:contract`. All corrected in place.
+
+**Used for:** `.nvmrc` + `engines`, `.github/workflows/ci.yml` (with `concurrency` + contract-tests-excluded comment), `src/hooks/use-api-error-toast.ts`, refactor `use-geolocation.ts` to expose `{ location, status }`, wire toast hook + denial note into `weather-app.tsx`, new i18n keys (`error.weatherFetchFailed`, `error.tryAgainLater`, `geolocation.*`), prune three low-value test files, document lookup-table rule in testing guidelines, README correctness sweep (Next.js 16, CI present, accurate Axios rationale, contract-test script listed)
+
+**Commit:** `chore: submission polish`

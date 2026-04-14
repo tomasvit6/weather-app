@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 
 import { api } from '@/lib/axios'
 import { API_ROUTES } from '@/lib/constants'
@@ -15,10 +15,36 @@ interface UseGeolocationOptions {
   fallbackName: string
 }
 
+export type GeolocationStatus =
+  | 'idle'
+  | 'loading'
+  | 'granted'
+  | 'denied'
+  | 'unavailable'
+
+export interface GeolocationState {
+  location: Location | null
+  status: GeolocationStatus
+}
+
+const subscribe = () => () => {}
+
+function useHasGeolocation(): boolean {
+  return useSyncExternalStore(
+    subscribe,
+    () => Boolean(navigator.geolocation),
+    () => false
+  )
+}
+
 export function useGeolocation({
   fallbackName,
-}: UseGeolocationOptions): Location | null {
+}: UseGeolocationOptions): GeolocationState {
+  const hasGeolocation = useHasGeolocation()
   const [location, setLocation] = useState<Location | null>(null)
+  const [resolvedStatus, setResolvedStatus] = useState<
+    'granted' | 'denied' | 'unavailable' | null
+  >(null)
   const fallbackNameRef = useRef(fallbackName)
 
   useEffect(() => {
@@ -60,12 +86,17 @@ export function useGeolocation({
           latitude,
           longitude,
         })
+        setResolvedStatus('granted')
       },
       (err) => {
         captureMessage('Geolocation denied or unavailable', {
           code: err.code,
           message: err.message,
         })
+        if (cancelled) return
+        setResolvedStatus(
+          err.code === err.PERMISSION_DENIED ? 'denied' : 'unavailable'
+        )
       },
       { timeout: 8000, maximumAge: 300_000 }
     )
@@ -75,5 +106,8 @@ export function useGeolocation({
     }
   }, [])
 
-  return location
+  const status: GeolocationStatus =
+    resolvedStatus ?? (hasGeolocation ? 'loading' : 'unavailable')
+
+  return { location, status }
 }

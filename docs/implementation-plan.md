@@ -85,16 +85,15 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Verify production build
 - **Commit:** `docs: update README and finalize phase 6 documentation`
 
-### Phase 7 — Submission Polish
+### Phase 7 — Submission Polish ✅
 
 Final pass to round out the submission:
 
-- [ ] Commit cleanup of unused `public/*.svg` Next.js defaults
-- [ ] Add `.nvmrc` and `"engines": { "node": ">=20" }` to `package.json`
-- [ ] Add `.github/workflows/ci.yml` running `lint`, `format:check`, `test`, `build`
-- [ ] Show a toast on rate-limit (429) and network errors in the API error path
-- [ ] Surface geolocation denial with an inline message instead of silent fallback
-- **Commit:** `chore: submission polish` (or split per item)
+- Pin Node version via `.nvmrc` and `"engines": { "node": ">=20" }` in `package.json`
+- Add `.github/workflows/ci.yml` running `lint`, `format:check`, `test`, `build`
+- Wire API error toasts via new `useApiErrorToast` hook (429 rate-limit and generic fetch failure)
+- Surface geolocation denial with an inline message instead of silent fallback
+- **Commit:** `chore: submission polish`
 
 ## Target Commit History
 
@@ -104,8 +103,8 @@ feat: implement weather and geocoding API routes with Zod validation
 feat: implement search bar with autocomplete, weather display, and search history
 test: add unit and component tests
 feat: add API caching, rate-limit handling, and UI animations
-docs: update README and finalize documentation
-chore: submission polish (optional, Phase 7)
+docs: update README and finalize phase 6 documentation
+chore: submission polish
 ```
 
 ## External APIs
