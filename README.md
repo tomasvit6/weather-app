@@ -70,13 +70,34 @@ src/
 └── types/                 # Shared TypeScript type definitions
 ```
 
-## Known Limitations
+## Assumptions, Tradeoffs & Known Limitations
 
-- **Single locale** — i18n infrastructure is in place but only English translations exist. Adding languages requires only new JSON files in `src/i18n/messages/`.
-- **No persistent backend** — search history lives in localStorage. Clearing browser data loses history.
-- **Free API dependency** — Open-Meteo is free and keyless, which means no SLA, rate limit guarantees, or fallback provider. All async states (loading, error, empty) are handled gracefully in the UI, but there's no secondary weather API to fall back to if Open-Meteo is down — adding one would be over-engineering for this scope.
-- **No production error monitoring** — error reporting uses console logging via `src/lib/logger.ts` (`captureError`, `captureMessage`). The interface is designed as a drop-in for Sentry — swap the implementations when deploying to production.
-- **No input spell-checking or fuzzy matching** — the search relies on Open-Meteo's geocoding API to handle user queries directly. No dedicated library or service validates or corrects misspellings client-side (e.g. "Lodnon" won't suggest "London"). Out of scope for this exercise; would typically be handled by a dedicated search service (Algolia, Meilisearch) or the geocoding provider itself.
+### Assumptions
+
+- **Single user, single browser** — no account system or cross-device sync needed; persistence is local to the browser.
+- **Modern evergreen browser** — ES2022+, `localStorage`, and `fetch` are available. No IE / legacy polyfills shipped.
+- **English-speaking audience** — only the English locale is bundled; the i18n infrastructure is in place so adding languages is a JSON file, not a refactor.
+- **Take-home evaluation scope** — polish, correctness, and documentation were prioritized over breadth of features and over concerns that only appear under real production traffic (horizontal scaling, DDoS, multi-region).
+- **Node ≥ 20** — required by Next.js 15.
+
+### Tradeoffs
+
+- **localStorage over a backend database** for search history. Simpler and sufficient at this scope; downside is history doesn't sync across devices. The Zustand store interface is clean enough to swap in a backend later without touching components.
+- **Open-Meteo as the only provider, no fallback.** Free, keyless, reliable enough for a take-home — but no SLA and no redundancy. Adding a secondary weather API would be over-engineering here; the failure path surfaces errors to the user rather than masking them.
+- **next-intl from day one with only English shipped.** Pays the infra cost up-front so adding a locale later is a JSON file with zero component changes. Costs nothing at runtime.
+- **Axios over native `fetch`** (~15 KB) — gained: interceptors, timeout configuration, and cleaner typed requests. Worth the weight for a real API layer.
+- **Zustand + React Query split** — two state libraries, each owning one concern cleanly (client state vs. server cache). Simpler in practice than forcing one library to do both.
+- **Unit + component + contract tests; no E2E.** The critical paths are covered by Vitest + RTL plus contract tests that hit the real Open-Meteo endpoints to catch schema drift. A Playwright happy-path suite is the natural next step and is noted as a follow-up.
+- **Husky + lint-staged locally; no CI pipeline yet.** Pre-commit hooks catch issues before code enters the repo. A GitHub Actions workflow running lint + test + build on push is the obvious next addition.
+- **No Open Graph / Twitter card metadata.** `generateMetadata` sets title and description; social share previews are deliberately skipped — they'd require dedicated preview images and design work that doesn't belong in this scope. The favicon is wired via `src/app/icon.svg`.
+
+### Known Limitations
+
+- **Single locale shipped** — English only. Adding languages = new JSON file in `src/i18n/messages/` + entry in `src/i18n/routing.ts`.
+- **No persistent backend** — search history lives in `localStorage`. Clearing browser data loses history; it doesn't sync across devices.
+- **Free API dependency** — Open-Meteo provides no SLA, no rate-limit guarantees, and no fallback provider. Loading, error, and empty states are handled gracefully in the UI; rate-limit responses (429) are detected and surfaced.
+- **Console-based error logging** — `src/lib/logger.ts` exposes `captureError` / `captureMessage` with a Sentry-compatible interface. Swap the implementations to wire real monitoring when deploying.
+- **No fuzzy search or spell correction** on the input — the search relies on Open-Meteo's geocoding API directly (e.g. "Lodnon" won't suggest "London"). Typically handled by a dedicated search service (Algolia, Meilisearch) or the provider itself; out of scope here.
 
 ## Documentation
 

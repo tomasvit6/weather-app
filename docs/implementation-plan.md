@@ -76,12 +76,25 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Use app svg logo as favicon
 - **Commit:** `feat: add API caching, rate-limit handling, and UI animations`
 
-### Phase 6 — Documentation
+### Phase 6 — Documentation ✅
 
-- Update README with setup instructions, screenshots, architecture overview
-- Update AI_PROMPTS.md with all phases
+- Update README with setup instructions, architecture overview, tech stack rationale
+- Split submission notes into **Assumptions, Tradeoffs & Known Limitations** (explicitly addressing the brief)
+- Update `docs/ai-prompts.md` with all phases through Phase 6
+- Remove unused Next.js default assets from `public/`
 - Verify production build
-- **Commit:** `docs: update README and finalize documentation`
+- **Commit:** `docs: update README and finalize phase 6 documentation`
+
+### Phase 7 — Submission Polish
+
+Final pass to round out the submission:
+
+- [ ] Commit cleanup of unused `public/*.svg` Next.js defaults
+- [ ] Add `.nvmrc` and `"engines": { "node": ">=20" }` to `package.json`
+- [ ] Add `.github/workflows/ci.yml` running `lint`, `format:check`, `test`, `build`
+- [ ] Show a toast on rate-limit (429) and network errors in the API error path
+- [ ] Surface geolocation denial with an inline message instead of silent fallback
+- **Commit:** `chore: submission polish` (or split per item)
 
 ## Target Commit History
 
@@ -92,6 +105,7 @@ feat: implement search bar with autocomplete, weather display, and search histor
 test: add unit and component tests
 feat: add API caching, rate-limit handling, and UI animations
 docs: update README and finalize documentation
+chore: submission polish (optional, Phase 7)
 ```
 
 ## External APIs

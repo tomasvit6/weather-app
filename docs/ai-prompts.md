@@ -287,3 +287,51 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 **Used for:** API caching headers, rate-limit handling, Motion animations, SVG favicon, responsive fixes, a11y audit, type-safe i18n, search history skeleton + empty state, location time display, scroll-to-top logo link, `ROUTES` / `API_ROUTES` constants, light-mode input contrast, `AnimatePresence` test mock
 
 **Commit:** `feat: add API caching, rate-limit handling, and UI animations`
+
+## Phase 6 — Documentation
+
+**Phase 6 prompt:**
+
+> Task: Final documentation and submission polish
+>
+> Context
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md before starting.
+>
+> This is the documentation phase of a weather web app (senior engineer take-home for Axiology). Phases 1-5 are complete — the app is fully functional with 86 tests, API caching, rate-limit handling, animations, responsive design, dark mode, i18n, and a comprehensive README. This is Phase 6 — final documentation polish and submission verification. Phase 7 will handle the senior engineering follow-ups (CI, E2E, metadata).
+>
+> Current state
+>
+> - README.md is already comprehensive (tech stack rationale, architecture decisions, Assumptions/Tradeoffs/Known Limitations)
+> - Working tree has uncommitted changes: README.md modified, docs/implementation-plan.md modified, deleted default public/\*.svg files
+> - All 86 tests pass, build is clean
+>
+> Requirements
+>
+> 1. Clean up default Next.js assets — verify nothing in `src/` or `app/` references `file.svg`, `globe.svg`, `next.svg`, `vercel.svg`, `window.svg`, or `favicon.ico` (App Router auto-serves `icon.svg` added in Phase 5, making `favicon.ico` obsolete). Only delete if unreferenced.
+> 2. Verify README completeness — the brief requires how-to-run-locally and assumptions/tradeoffs/known limitations. Do NOT rewrite. Only fix specific issues if found.
+> 3. Update `docs/implementation-plan.md` — mark Phase 6 ✅; keep Phase 7 as the final planned phase (not "proposed").
+> 4. Update `docs/ai-prompts.md` — append Phase 6 entry in the same format as prior phases.
+> 5. Final verification — `npm run lint`, `npm run format:check`, `npm test`, `npm run build` must all pass.
+> 6. Git commit: `docs: update README and finalize phase 6 documentation`.
+>
+> Important Notes
+>
+> - Do NOT touch Phase 7 items yet — that's the next commit.
+> - Do NOT add `.nvmrc`, engines, CI, E2E, or metadata enhancements — those are Phase 7.
+> - Do NOT rewrite README.
+> - Keep this commit focused on docs + cleanup.
+
+**Additional prompts (iterative refinements):**
+
+- Audit the project against the task brief and identify any gaps before submission. Output captured as a prioritized follow-up list; documentation edits scoped to this phase, remaining engineering items (CI, E2E, metadata, `.nvmrc`, toast error UX, hook unit tests) deferred to Phase 7.
+- Restructure README "Known Limitations" into the three sections the brief explicitly asks for: **Assumptions, Tradeoffs & Known Limitations**. Keep existing bullets intact; add explicit assumptions (single user/browser, modern evergreen browser, English audience, Node ≥ 20) and tradeoffs (localStorage vs backend, Open-Meteo with no fallback, next-intl up-front, axios over fetch, Zustand + React Query split, no E2E yet, no CI yet).
+- Keep wording neutral and professional — any commentary that reads as internal review notes ("follow-up items identified during review", "English-speaking reviewer") rephrased for an external reader.
+- Clarify favicon state — `src/app/icon.svg` from Phase 5 already serves the logo as the favicon via Next.js file-based metadata. Only `openGraph` and `twitter` metadata remain outstanding (deferred to Phase 7).
+- Append this Phase 6 entry to `docs/ai-prompts.md` before marking the phase ✅ in `implementation-plan.md`.
+
+**Used for:** restructuring README into Assumptions/Tradeoffs/Known Limitations, marking Phase 6 ✅ in `implementation-plan.md`, finalizing Phase 7 section, appending Phase 6 to `ai-prompts.md`, removing unused Next.js default assets from `public/`
+
+**Commit:** `docs: update README and finalize phase 6 documentation`
