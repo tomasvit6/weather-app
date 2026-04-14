@@ -2,7 +2,7 @@
 
 ## Overview
 
-Weather web app that allows users to search for a location with autocomplete, view current weather conditions, and persist search history. Built with Next.js 15 (App Router), TypeScript, Tailwind CSS, and shadcn/ui.
+Weather web app that allows users to search for a location with autocomplete, view current weather conditions, and persist search history. Built with Next.js 16 (App Router), TypeScript, Tailwind CSS, and shadcn/ui.
 
 ## Architecture Decisions
 
@@ -16,40 +16,42 @@ Weather web app that allows users to search for a location with autocomplete, vi
 
 ### Phase 1 — Project Scaffolding & Architecture ✅
 
-- Create Next.js 15 project with TypeScript, Tailwind, App Router
+- Create Next.js 16 project with TypeScript, Tailwind, App Router
 - Install all dependencies (shadcn/ui, react-query, zustand, axios, zod, vitest, etc.)
 - Set up project structure with placeholder files
 - Define TypeScript types (Location, WeatherData, SearchHistoryEntry)
 - Configure Vitest, ESLint (with prettier, import sorting, a11y), Prettier
+- Set up next-intl i18n with `[locale]` routing and `proxy.ts`
+- Add logger service (`captureError`, `captureMessage`) for structured error logging
+- Add error and not-found boundary pages with i18n support
+- Set up Husky + lint-staged for pre-commit enforcement
+- Add constants file for API URLs (no secrets needed)
+- Implement Zustand history store with localStorage persistence via `persist` middleware
+- Set up React Query provider (staleTime: 60s, retry: 1)
 - Write CLAUDE.md, coding guidelines, testing guidelines
 - **Commit:** `chore: initial project setup with Next.js, Tailwind, shadcn/ui`
 
-### Phase 2 — Types & API Layer
+### Phase 2 — API Layer & Zod Validation ✅
 
 - Create Zod schemas for Open-Meteo API responses (forecast + geocoding)
+- Create WMO weather code mapping module (codes 0–99 to human-readable conditions)
 - Implement `/api/weather` route — fetch from Open-Meteo Forecast API, validate with Zod, return typed response
 - Implement `/api/geocoding` route — fetch from Open-Meteo Geocoding API, validate with Zod, return typed response
 - Create Axios client functions (`getWeather`, `searchLocations`) that call internal API routes
-- Add error handling with typed error responses
+- Create React Query hooks (`useWeather`, `useGeocodingSearch`) for data fetching
+- Add error handling with typed error responses and `captureError()` logging
+- Clean up unused `storage.ts` placeholder (Zustand store handles persistence)
 - **Commit:** `feat: implement weather and geocoding API routes with Zod validation`
 
 ### Phase 3 — Core UI Components
 
 - Build `SearchBar` component — text input with debounced autocomplete dropdown, location selection
 - Build `WeatherCard` component — display current weather (temperature, condition, humidity, wind, feels-like)
-- Add weather condition icons/descriptions mapping from WMO weather codes
-- Wire up react-query hooks for data fetching
-- **Commit:** `feat: implement search bar with autocomplete and weather display card`
+- Build `SearchHistory` component — list of recent searches with click-to-search, clear history, remove individual entries
+- Wire up components with React Query hooks and Zustand store
+- **Commit:** `feat: implement search bar with autocomplete, weather display, and search history`
 
-### Phase 4 — Search History & Storage
-
-- Implement Zustand store with localStorage persistence
-- Build `SearchHistory` component — list of recent searches with location, temperature, time
-- Add click-to-search-again on history entries
-- Add clear history and remove individual entries
-- **Commit:** `feat: add search history with localStorage persistence`
-
-### Phase 5 — Integration & Polish
+### Phase 4 — Integration & Loading/Error/Empty States
 
 - Connect all components end-to-end
 - Add loading states with Skeleton components
@@ -57,7 +59,7 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Add empty states (no search yet, no results found)
 - **Commit:** `feat: integrate components with loading, error, and empty states`
 
-### Phase 6 — Dark Mode & Animations
+### Phase 5 — Dark Mode & Animations
 
 - Set up next-themes for dark/light mode toggle
 - Add Motion animations for weather card transitions
@@ -65,15 +67,15 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Responsive design polish (mobile-first)
 - **Commit:** `feat: add dark mode support and UI animations`
 
-### Phase 7 — Testing
+### Phase 6 — Testing
 
-- Unit tests for lib/ functions (API clients, storage, query keys)
+- Unit tests for lib/ functions (API clients, query keys, weather codes)
 - Component tests for SearchBar, WeatherCard, SearchHistory
 - Test loading, error, and empty states
 - Test user interactions (search, select location, clear history)
 - **Commit:** `test: add unit and component tests`
 
-### Phase 8 — Documentation & Final Polish
+### Phase 7 — Documentation & Final Polish
 
 - Update README with setup instructions, screenshots, architecture overview
 - Update AI_PROMPTS.md with all phases
@@ -86,8 +88,7 @@ Weather web app that allows users to search for a location with autocomplete, vi
 ```
 chore: initial project setup with Next.js, Tailwind, shadcn/ui
 feat: implement weather and geocoding API routes with Zod validation
-feat: implement search bar with autocomplete and weather display card
-feat: add search history with localStorage persistence
+feat: implement search bar with autocomplete, weather display, and search history
 feat: integrate components with loading, error, and empty states
 feat: add dark mode support and UI animations
 test: add unit and component tests

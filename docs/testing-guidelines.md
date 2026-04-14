@@ -47,8 +47,9 @@ The more your tests resemble the way your software is used, the more confidence 
 - **shadcn/ui component internals** — they're tested upstream
 - **CSS/styling details** — visual testing is out of scope
 - **Trivial code** — simple getters, pass-through functions, and type-only transformations
-- **Third-party library behavior** — don't test that `date-fns` formats dates correctly. Test your code that uses it.
+- **Third-party library behavior** — don't test that `date-fns` formats dates correctly or that Zod rejects invalid types. Test your code that uses these libraries.
 - **Things TypeScript already catches** — don't write tests that verify type-level constraints
+- **Tests already covered by other assertions** — if a `toEqual` on the full response shape already proves a field is absent, don't add a separate `not.toHaveProperty` test for it
 
 ## Mocking
 
@@ -58,7 +59,8 @@ The more your tests resemble the way your software is used, the more confidence 
 
 ### Always mock (external boundaries)
 
-- **API calls** — use `vi.mock` to mock axios. Never hit real endpoints.
+- **API calls** — use `vi.mock` to mock axios or `vi.stubGlobal('fetch', ...)` for server-side routes. Never hit real endpoints in unit tests (contract tests are separate).
+- **Logger** — mock `@/lib/logger` in tests that exercise error paths to suppress stderr noise.
 - **Debounce** — mock to call immediately. Tests shouldn't depend on timing.
 
 ### Prefer real code over mocks
@@ -129,10 +131,23 @@ describe('SearchBar', () => {
 - `src/hooks/`: > 80%
 - `src/stores/`: > 80%
 
+## Contract Tests
+
+Contract tests verify that our Zod schemas still match the real external API responses. They hit the live Open-Meteo API and catch schema drift — the most dangerous failure mode, since it's silent.
+
+- Located in `src/__tests__/contracts/`
+- Excluded from `npm test` (network-dependent, slower)
+- Run separately via `npm run test:contract`
+- Use a dedicated Vitest config (`vitest.contract.config.ts`) with a 10s timeout
+- Should run in CI on a schedule (e.g., daily), not on every push
+
+If a contract test fails, it means the external API changed its response shape and our Zod schemas need updating.
+
 ## Running Tests
 
 ```bash
-npm test              # Run all tests once
+npm test              # Run all unit tests once
 npm run test:watch    # Watch mode (re-run on file change)
 npm run test:coverage # Generate coverage report
+npm run test:contract # Run contract tests against live APIs
 ```

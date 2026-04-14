@@ -45,7 +45,71 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 - Enforced strict i18n rule in CLAUDE.md: never hardcode English for user-facing text.
 - Added i18n-aware `generateMetadata` on all public pages — localized title/description, title template in layout.
 - Documented WCAG 2.1 AA and SEO approach in README architecture decisions.
+- Added design system documentation (`docs/design-system.md`) — design philosophy, component architecture, layout patterns, theming, motion, accessibility, iconography.
 
 **Used for:** Initial project setup, folder structure, type definitions, CLAUDE.md, docs/, vitest config, ESLint + Prettier + Husky setup, i18n, error boundaries, logger service, SEO metadata
 
 **Commit:** `chore: initial project setup with Next.js, Tailwind, shadcn/ui`
+
+## Phase 2 — API Layer & Zod Validation
+
+**Second prompt:**
+
+> Task: Implement weather and geocoding API layer with Zod validation
+>
+> Context
+>
+> I'm building a weather web app (senior engineer take-home for Axiology). Phase 1 is complete — project is scaffolded with Next.js 16, TypeScript, Tailwind, shadcn/ui, next-intl, React Query, Zustand, Axios, Zod. This is Phase 2 — implementing the API layer only. No UI changes.
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md before starting — it has all the coding conventions and rules.
+>
+> What already exists (DO NOT recreate or overwrite unless replacing placeholders)
+>
+> - src/types/index.ts — Location, WeatherData, SearchHistoryEntry interfaces
+> - src/lib/axios.ts — Axios instance (api) with baseURL /api, 10s timeout
+> - src/lib/constants.ts — WEATHER_API_URL (https://api.open-meteo.com/v1), GEOCODING_API_URL (https://geocoding-api.open-meteo.com/v1), MAX_HISTORY_ENTRIES (10)
+> - src/lib/query-keys.ts — query key factory with weather.byLocation(lat, lng) and geocoding.search(query)
+> - src/lib/logger.ts — captureError() and captureMessage() functions
+> - src/stores/history-store.ts — Zustand store with persist middleware (already implemented with addEntry, removeEntry, clearHistory)
+> - src/providers/query-provider.tsx — QueryClientProvider (staleTime: 60s, retry: 1)
+> - src/app/api/weather/route.ts — placeholder GET handler
+> - src/lib/weather.ts — placeholder getWeather(lat, lng)
+> - src/lib/geocoding.ts — placeholder searchLocations(query)
+> - src/lib/storage.ts — placeholder getHistory() (likely obsolete since Zustand store handles persistence now — check if anything imports it, if not, remove it)
+>
+> Requirements
+>
+> 1. Create Zod schemas — src/lib/schemas.ts
+> 2. Create WMO weather code mapping — src/lib/weather-codes.ts
+> 3. Implement geocoding API route — src/app/api/geocoding/route.ts (NEW FILE)
+> 4. Implement weather API route — src/app/api/weather/route.ts (REPLACE placeholder)
+> 5. Implement client-side API functions (src/lib/geocoding.ts, src/lib/weather.ts)
+> 6. Create React Query hooks — src/hooks/use-weather.ts and src/hooks/use-geocoding.ts (NEW FILES)
+> 7. Clean up src/lib/storage.ts
+> 8. Update AI prompts, git commit, verify
+>
+> (Full prompt with detailed specs for each requirement — Zod schema shapes, API route behavior, error handling patterns, transformation rules, etc.)
+
+**Additional prompts:**
+
+> 11. Update docs/implementation-plan.md — update to reflect what actually happened (Next.js 16, merged phases, renumbered).
+
+> Task: Create design system documentation — concise philosophy doc (under 150 lines) covering design philosophy, component architecture, layout, theming, typography, motion, accessibility, iconography.
+
+**Refinements during implementation:**
+
+- Weather condition codes changed from English strings to camelCase i18n keys (`clearSky`, `slightRain`, etc.) with translations in `en.json` under `weather.condition` namespace — weather codes are user-facing content, not internal labels.
+- Simplified client-side API functions (`getWeather`, `searchLocations`) — removed unnecessary try/catch wrappers that just rethrew errors. Axios errors propagate naturally, React Query catches them, UI shows translated strings.
+- Updated API routes to use the `URL` API for building external URLs instead of string interpolation — cleaner, handles encoding automatically, no manual `encodeURIComponent`.
+- Fixed critical bug: `new URL('/forecast', WEATHER_API_URL)` dropped the `/v1` path segment, causing 404s. Fixed to `new URL(\`${WEATHER_API_URL}/forecast\`)`.
+- Added `.vscode/` to `.gitignore`.
+- Added unit tests for schemas, weather codes, and API routes — focused on meaningful behavior (transformations, validation boundaries, error handling), removed tests that just tested Zod library behavior.
+- Added contract tests (`npm run test:contract`) that hit the real Open-Meteo API to detect schema drift. Separate config and script so they don't run on every `npm test`.
+- Updated testing guidelines with contract test documentation and "don't test the library" principle.
+- Added Husky pre-push hook to run tests before every push — no CI/CD yet, so this is the safety net.
+
+**Used for:** Zod schemas, API routes, weather codes, client API functions, React Query hooks, design system docs, implementation plan updates, unit + contract tests
+
+**Commit:** `feat: implement weather and geocoding API routes with Zod validation`
