@@ -58,7 +58,7 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Add history store deduplication by location id
 - **Commit:** `feat: implement search bar with autocomplete, weather display, and search history`
 
-### Phase 4 — Testing
+### Phase 4 — Testing ✅
 
 - Unit tests for lib/ functions (API clients, query keys, weather codes, weather icons)
 - Component tests for SearchBar, WeatherCard, SearchHistory
@@ -66,7 +66,7 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Test user interactions (search, select location, clear history)
 - **Commit:** `test: add unit and component tests`
 
-### Phase 5 — Polish & Production Hardening
+### Phase 5 — Polish & Production Hardening ✅
 
 - API response caching on `/api/weather` and `/api/geocoding` routes (Cache-Control headers, stale-while-revalidate)
 - Rate-limit handling — detect 429 responses from Open-Meteo, return appropriate error to client, show user-friendly toast

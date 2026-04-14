@@ -223,3 +223,67 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 **Used for:** Unit tests for lib/weather-icons, stores/history-store, hooks/use-debounce. Component tests for search-bar, weather-card, search-history. Shared test utilities.
 
 **Commit:** `test: add unit and component tests`
+
+## Phase 5 — Polish & Production Hardening
+
+**Phase 5 prompt:**
+
+> Task: Polish & production hardening
+>
+> Context
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md and docs/design-system.md before starting.
+>
+> This is a weather web app (senior engineer take-home for Axiology). Phases 1-4 are complete — the app is fully functional with tests passing (86 tests). This is Phase 5 — production polish. The app already has glassmorphism weather card, dark/light mode, geolocation, and animated gradient blobs. This phase focuses on the remaining production concerns: API caching, rate-limit handling, Motion animations, responsive polish, accessibility audit, and favicon.
+>
+> What already exists
+>
+> - Animated gradient blobs on weather card with prefers-reduced-motion respect (CSS keyframes in globals.css)
+> - Dark/light mode via next-themes with toggle in header
+> - Auto-refetch every 5 minutes via React Query refetchInterval
+> - Sticky header with backdrop blur
+> - Glassmorphism weather card with weather-contextual colors
+> - Geolocation auto-detect on load
+> - All tests passing (86 tests, 11 files)
+>
+> Requirements
+>
+> 1. API response caching — Cache-Control headers on `/api/weather` (max-age=300, stale-while-revalidate=600), `/api/geocoding` and `/api/reverse-geocoding` (max-age=3600, stale-while-revalidate=86400). Only on successful (200) responses.
+> 2. Rate-limit handling — In all three API routes, detect 429 from upstream, log via `captureMessage`, return `{ error: 'Too many requests...' }` with status 429. Add axios response interceptor that shows a sonner toast on 429. Add `error.rateLimited` i18n key.
+> 3. Motion animations — WeatherCard enter animation keyed by `data.location.id` (`initial={{ opacity: 0, y: 12 }}` → `animate={{ opacity: 1, y: 0 }}`, duration 0.3). SearchBar dropdown AnimatePresence (opacity + y: -8, duration 0.15). SearchHistory entries stagger (`motion.li` with `delay: index * 0.05`). Respect `prefers-reduced-motion` (motion v12+ handles automatically).
+> 4. SVG favicon — Create `src/app/icon.svg` from `src/components/logo.tsx` with hardcoded black fill (no CSS variables). Next.js App Router auto-serves it.
+> 5. Responsive design polish — Verify at 375px viewport: search input full-width, temperature scales (`text-5xl` mobile / `text-7xl` desktop), search history doesn't overflow, header fits, detail row labels truncate. Fix only what's broken.
+> 6. Accessibility audit — Tab order, `aria-live="polite"` on weather card, focus indicators, muted text contrast in dark mode, Escape closes search dropdown. Fix any issues found.
+> 7. Update docs/ai-prompts.md — Append Phase 5 entry.
+> 8. Update docs/implementation-plan.md — Mark Phase 5 as ✅.
+> 9. Git commit with message "feat: add API caching, rate-limit handling, and UI animations".
+> 10. Verify — npm test, npm run build, browser testing (animations, Cache-Control headers, favicon, mobile viewport, tab navigation, dark mode, reduced motion).
+>
+> Important Notes
+>
+> - All user-facing strings via i18n
+> - Motion v12+ uses `motion.div` not `motion(div)` — `import { motion, AnimatePresence } from 'motion/react'`
+> - Cache headers only on success responses, not errors
+> - Don't break existing tests
+> - Keep animations subtle and fast (150-300ms)
+> - SVG favicon needs hardcoded colors, not CSS variables
+
+**Additional prompts (iterative refinements):**
+
+- Our `t()` is type unsafe — add type-safe translations. Checked how smc-gen solves it: module augmentation on `next-intl` `AppConfig` interface with `Messages = typeof messages`. Created `src/i18n/types.ts`.
+- Search history card should always be displayed — even when no results. Empty state should include the card title and empty icon. On page load, show skeleton loaders until Zustand store hydrates from localStorage (replace `return null` with skeleton rows).
+- Reviewed all changes — identified issues: unsafe `as` assertions in reverse-geocoding route (replaced with `ReverseGeocodingResponseSchema` Zod validation); hardcoded English in axios 429 interceptor (removed — i18n unavailable outside React context, rate-limit errors propagate through React Query to translated component error states).
+- Add time display in weather card header — current time in the location's timezone via `Intl.DateTimeFormat` with `timezone` from weather API response. Required adding `timezone=auto` param to Open-Meteo request and `timezone` field to the response schema + type.
+- Header logo/title should scroll to top or link to `/` — on-route click now smooth-scrolls via `onClick={() => window.scrollTo(...)}`. Required `'use client'` directive since handler is an event.
+- `SearchBar` onSelect shouldn't scroll — split `handleSelect` into `handleSearch` (no scroll) and `handleHistorySelect` (scrolls to weather card).
+- Add `ROUTES` constant and `API_ROUTES` constant — centralized all client-side and API route paths in `src/lib/constants.ts`. Updated header, `weather.ts`, `geocoding.ts`, `use-geolocation.ts` to use them.
+- Responsive polish — temperature scales `text-4xl sm:text-5xl md:text-7xl`; location name/time stack vertically on mobile; detail row gets `min-w-0` + `truncate` on values so long strings ellipsis properly in the flex layout.
+- Search input visible in light mode — shadcn default `bg-transparent` blended into page background; changed to `bg-background` for contrast.
+- Mocked `AnimatePresence` in test setup (`src/__tests__/setup.ts`) — exit animations left elements in DOM indefinitely under jsdom, breaking the Escape-closes-dropdown test. `motion.div/ul/li` render fine, only `AnimatePresence` needs the mock.
+- Added README "Known Limitations" entry — no client-side spell-check or fuzzy matching; out of scope for this exercise, typically handled by a dedicated search service (Algolia, Meilisearch) or the geocoding provider itself.
+
+**Used for:** API caching headers, rate-limit handling, Motion animations, SVG favicon, responsive fixes, a11y audit, type-safe i18n, search history skeleton + empty state, location time display, scroll-to-top logo link, `ROUTES` / `API_ROUTES` constants, light-mode input contrast, `AnimatePresence` test mock
+
+**Commit:** `feat: add API caching, rate-limit handling, and UI animations`

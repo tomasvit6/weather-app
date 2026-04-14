@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 import { GEOCODING_API_URL } from '@/lib/constants'
-import { captureError } from '@/lib/logger'
+import { captureError, captureMessage } from '@/lib/logger'
 import { GeocodingResponseSchema } from '@/lib/schemas'
 import type { Location } from '@/types'
 
@@ -22,6 +22,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     url.searchParams.set('language', 'en')
 
     const response = await fetch(url)
+
+    if (response.status === 429) {
+      captureMessage('Rate limited by upstream API', { url: url.toString() })
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again in a moment.' },
+        { status: 429 }
+      )
+    }
 
     if (!response.ok) {
       captureError(new Error(`Geocoding API returned ${response.status}`), {
@@ -47,7 +55,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       longitude: result.longitude,
     }))
 
-    return NextResponse.json(locations)
+    return NextResponse.json(locations, {
+      headers: {
+        'Cache-Control': 'public, max-age=3600, stale-while-revalidate=86400',
+      },
+    })
   } catch (error) {
     captureError(error, { query })
     return NextResponse.json(

@@ -25,5 +25,20 @@ export const WeatherCurrentSchema = z.object({
 })
 
 export const WeatherResponseSchema = z.object({
+  timezone: z.string(),
   current: WeatherCurrentSchema,
+})
+
+export const ReverseGeocodingResponseSchema = z.object({
+  name: z.string().optional().default(''),
+  address: z
+    .object({
+      city: z.string().optional(),
+      town: z.string().optional(),
+      village: z.string().optional(),
+      country: z.string().optional().default(''),
+      country_code: z.string().optional().default(''),
+    })
+    .optional()
+    .default({ country: '', country_code: '' }),
 })

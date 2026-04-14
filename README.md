@@ -76,6 +76,7 @@ src/
 - **No persistent backend** — search history lives in localStorage. Clearing browser data loses history.
 - **Free API dependency** — Open-Meteo is free and keyless, which means no SLA, rate limit guarantees, or fallback provider. All async states (loading, error, empty) are handled gracefully in the UI, but there's no secondary weather API to fall back to if Open-Meteo is down — adding one would be over-engineering for this scope.
 - **No production error monitoring** — error reporting uses console logging via `src/lib/logger.ts` (`captureError`, `captureMessage`). The interface is designed as a drop-in for Sentry — swap the implementations when deploying to production.
+- **No input spell-checking or fuzzy matching** — the search relies on Open-Meteo's geocoding API to handle user queries directly. No dedicated library or service validates or corrects misspellings client-side (e.g. "Lodnon" won't suggest "London"). Out of scope for this exercise; would typically be handled by a dedicated search service (Algolia, Meilisearch) or the geocoding provider itself.
 
 ## Documentation
 

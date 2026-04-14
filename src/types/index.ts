@@ -20,6 +20,7 @@ export interface WeatherData {
   condition: WeatherCondition
   isDay: boolean
   timestamp: string
+  timezone: string
 }
 
 export interface SearchHistoryEntry {

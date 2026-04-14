@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { api } from '@/lib/axios'
+import { API_ROUTES } from '@/lib/constants'
 import { captureError, captureMessage } from '@/lib/logger'
 import type { Location } from '@/types'
 
@@ -10,11 +11,24 @@ interface ReverseGeocodeResponse {
   countryCode: string
 }
 
-export function useGeolocation(): Location | null {
+interface UseGeolocationOptions {
+  fallbackName: string
+}
+
+export function useGeolocation({
+  fallbackName,
+}: UseGeolocationOptions): Location | null {
   const [location, setLocation] = useState<Location | null>(null)
+  const fallbackNameRef = useRef(fallbackName)
+
+  useEffect(() => {
+    fallbackNameRef.current = fallbackName
+  }, [fallbackName])
 
   useEffect(() => {
     if (!navigator.geolocation) return
+
+    let cancelled = false
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -26,7 +40,7 @@ export function useGeolocation(): Location | null {
 
         try {
           const res = await api.get<ReverseGeocodeResponse>(
-            '/reverse-geocoding',
+            API_ROUTES.reverseGeocoding,
             { params: { lat: latitude, lng: longitude } }
           )
           name = res.data.name
@@ -36,9 +50,11 @@ export function useGeolocation(): Location | null {
           captureError(err, { latitude, longitude })
         }
 
+        if (cancelled) return
+
         setLocation({
           id: 0,
-          name: name || 'Your Location',
+          name: name || fallbackNameRef.current,
           country,
           countryCode,
           latitude,
@@ -53,6 +69,10 @@ export function useGeolocation(): Location | null {
       },
       { timeout: 8000, maximumAge: 300_000 }
     )
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   return location

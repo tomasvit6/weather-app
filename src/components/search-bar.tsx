@@ -1,6 +1,7 @@
 'use client'
 
 import { Loader2, Search } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
 import { useTranslations } from 'next-intl'
 import { useEffect, useId, useRef, useState } from 'react'
 
@@ -98,6 +99,7 @@ export function SearchBar({ onSelect }: SearchBarProps) {
         <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           role="combobox"
+          aria-label={t('placeholder')}
           aria-expanded={showDropdown}
           aria-controls={listboxId}
           aria-activedescendant={highlightedOptionId}
@@ -122,41 +124,48 @@ export function SearchBar({ onSelect }: SearchBarProps) {
         )}
       </div>
 
-      {showDropdown && (
-        <ul
-          id={listboxId}
-          role="listbox"
-          className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border bg-popover p-1 shadow-lg"
-        >
-          {locations.map((location, index) => (
-            <li
-              key={location.id}
-              id={`${id}-option-${index}`}
-              role="option"
-              aria-selected={index === highlightedIndex}
-              className={cn(
-                'cursor-pointer rounded-lg px-3 py-2.5 text-sm transition-colors',
-                index === highlightedIndex && 'bg-accent text-accent-foreground'
-              )}
-              onMouseEnter={() => setHighlightedIndex(index)}
-              onMouseDown={(e) => {
-                e.preventDefault()
-                selectLocation(location)
-              }}
-            >
-              <span className="font-medium">{location.name}</span>
-              {location.admin1 && (
+      <AnimatePresence>
+        {showDropdown && (
+          <motion.ul
+            id={listboxId}
+            role="listbox"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border bg-popover p-1 shadow-lg"
+          >
+            {locations.map((location, index) => (
+              <li
+                key={location.id}
+                id={`${id}-option-${index}`}
+                role="option"
+                aria-selected={index === highlightedIndex}
+                className={cn(
+                  'cursor-pointer rounded-lg px-3 py-2.5 text-sm transition-colors',
+                  index === highlightedIndex &&
+                    'bg-accent text-accent-foreground'
+                )}
+                onMouseEnter={() => setHighlightedIndex(index)}
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  selectLocation(location)
+                }}
+              >
+                <span className="font-medium">{location.name}</span>
+                {location.admin1 && (
+                  <span className="text-muted-foreground">
+                    , {location.admin1}
+                  </span>
+                )}
                 <span className="text-muted-foreground">
-                  , {location.admin1}
+                  , {location.country}
                 </span>
-              )}
-              <span className="text-muted-foreground">
-                , {location.country}
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
 
       {isFocused &&
         query.length >= 2 &&
@@ -168,6 +177,10 @@ export function SearchBar({ onSelect }: SearchBarProps) {
             <p className="text-sm text-muted-foreground">{t('noResults')}</p>
           </div>
         )}
+
+      <div aria-live="polite" aria-atomic="true" className="sr-only">
+        {showDropdown ? t('resultsCount', { count: locations.length }) : null}
+      </div>
     </div>
   )
 }

@@ -25,6 +25,7 @@ function createWeatherData(overrides?: Partial<WeatherData>): WeatherData {
     condition: 'overcast' as WeatherCondition,
     isDay: true,
     timestamp: '2024-01-15T14:00',
+    timezone: 'Europe/Berlin',
     ...overrides,
   }
 }

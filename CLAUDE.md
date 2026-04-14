@@ -54,7 +54,6 @@ docs/              - Project documentation
 - No raw `console.log/error/warn` — use `captureError()` / `captureMessage()` from `src/lib/logger.ts` (logs to console now, swap in Sentry for production)
 - Never silently swallow errors in catch blocks
 - **TDD for bug fixes**: When fixing a bug, ALWAYS write a failing test first that reproduces the bug, then fix the code to make it pass. The test stays as a regression guard.
-- **API error toasts**: The global axios interceptor shows error toasts. If a component handles errors locally (e.g., `onError` with `toast.error()`), the API call **must** suppress the global toast to avoid double toasts.
 
 ### React Hydration
 

@@ -25,10 +25,13 @@ export default async function Home({ params }: HomeProps) {
   const { locale } = await params
   setRequestLocale(locale)
 
+  const t = await getTranslations({ locale })
+
   return (
     <>
       <Header />
       <main className="flex flex-1 flex-col items-center px-4 py-8">
+        <h1 className="sr-only">{t('app.title')}</h1>
         <div className="w-full max-w-4xl mx-auto space-y-8">
           <WeatherApp />
         </div>

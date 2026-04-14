@@ -1,5 +1,6 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { SearchBar } from '@/components/search-bar'
@@ -11,17 +12,22 @@ import { useHistoryStore } from '@/stores/history-store'
 import type { Location } from '@/types'
 
 export function WeatherApp() {
+  const t = useTranslations('weather')
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null
   )
-  const geoLocation = useGeolocation()
+  const geoLocation = useGeolocation({ fallbackName: t('yourLocation') })
   const activeLocation = selectedLocation ?? geoLocation
   const { data, isLoading, error, dataUpdatedAt } = useWeather(activeLocation)
   const addEntry = useHistoryStore((state) => state.addEntry)
   const lastAddedLocationId = useRef<number | null>(null)
   const weatherCardRef = useRef<HTMLDivElement>(null)
 
-  const handleSelect = useCallback((location: Location) => {
+  const handleSearch = useCallback((location: Location) => {
+    setSelectedLocation(location)
+  }, [])
+
+  const handleHistorySelect = useCallback((location: Location) => {
     setSelectedLocation(location)
     weatherCardRef.current?.scrollIntoView({
       behavior: 'smooth',
@@ -48,17 +54,15 @@ export function WeatherApp() {
   }, [data, activeLocation, addEntry])
 
   return (
-    <div className="space-y-8">
-      <SearchBar onSelect={handleSelect} />
-      <div ref={weatherCardRef} className="scroll-mt-20">
-        <WeatherCard
-          data={data}
-          isLoading={isLoading}
-          error={error}
-          dataUpdatedAt={dataUpdatedAt}
-        />
-      </div>
-      <SearchHistory onSelect={handleSelect} />
+    <div ref={weatherCardRef} className="space-y-8 scroll-mt-20">
+      <SearchBar onSelect={handleSearch} />
+      <WeatherCard
+        data={data}
+        isLoading={isLoading}
+        error={error}
+        dataUpdatedAt={dataUpdatedAt}
+      />
+      <SearchHistory onSelect={handleHistorySelect} />
     </div>
   )
 }

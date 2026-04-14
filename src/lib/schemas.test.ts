@@ -68,7 +68,10 @@ describe('WeatherResponseSchema', () => {
   }
 
   it('parses a valid weather response and transforms is_day to boolean', () => {
-    const result = WeatherResponseSchema.parse({ current: validCurrent })
+    const result = WeatherResponseSchema.parse({
+      timezone: 'Europe/Berlin',
+      current: validCurrent,
+    })
 
     expect(result.current).toEqual({
       time: '2024-01-15T14:00',
@@ -83,6 +86,7 @@ describe('WeatherResponseSchema', () => {
 
   it('transforms is_day 0 to false', () => {
     const result = WeatherResponseSchema.parse({
+      timezone: 'Europe/Berlin',
       current: { ...validCurrent, is_day: 0 },
     })
     expect(result.current.is_day).toBe(false)
@@ -90,6 +94,7 @@ describe('WeatherResponseSchema', () => {
 
   it('treats is_day values other than 1 as false', () => {
     const result = WeatherResponseSchema.parse({
+      timezone: 'Europe/Berlin',
       current: { ...validCurrent, is_day: 2 },
     })
     expect(result.current.is_day).toBe(false)

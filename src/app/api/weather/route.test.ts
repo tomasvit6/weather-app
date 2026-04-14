@@ -27,6 +27,7 @@ function createRequest(params: Record<string, string> = {}): NextRequest {
 }
 
 const validApiResponse = {
+  timezone: 'Europe/Berlin',
   current: {
     time: '2024-01-15T14:00',
     temperature_2m: 5.2,
@@ -103,6 +104,7 @@ describe('GET /api/weather', () => {
         condition: 'overcast',
         isDay: true,
         timestamp: '2024-01-15T14:00',
+        timezone: 'Europe/Berlin',
       })
     })
 
@@ -111,6 +113,7 @@ describe('GET /api/weather', () => {
         ok: true,
         json: () =>
           Promise.resolve({
+            timezone: 'Europe/Berlin',
             current: { ...validApiResponse.current, weather_code: 95 },
           }),
       })
