@@ -1,0 +1,35 @@
+{
+  "app": {
+    "title": "Weather App",
+    "description": "Search for a location and view current weather information"
+  },
+  "search": {
+    "placeholder": "Search for a location...",
+    "noResults": "No locations found",
+    "error": "Failed to search locations"
+  },
+  "weather": {
+    "title": "Current Weather",
+    "temperature": "Temperature",
+    "feelsLike": "Feels like",
+    "humidity": "Humidity",
+    "windSpeed": "Wind speed",
+    "error": "Failed to load weather data",
+    "noLocation": "Search for a location to see the weather"
+  },
+  "history": {
+    "title": "Search History",
+    "empty": "No recent searches",
+    "clear": "Clear history",
+    "searchedAt": "Searched {time}"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "An unexpected error occurred. Please try again.",
+    "tryAgain": "Try again"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist."
+  }
+}
