@@ -1,3 +1,5 @@
+import type { WeatherCondition } from '@/lib/weather-codes'
+
 export interface Location {
   id: number
   name: string
@@ -15,7 +17,7 @@ export interface WeatherData {
   humidity: number
   windSpeed: number
   weatherCode: number
-  condition: string
+  condition: WeatherCondition
   isDay: boolean
   timestamp: string
 }
@@ -24,6 +26,6 @@ export interface SearchHistoryEntry {
   id: string
   location: Location
   temperature: number
-  condition: string
+  condition: WeatherCondition
   searchedAt: string
 }

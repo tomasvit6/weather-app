@@ -1,4 +1,4 @@
-const WEATHER_CODES: Record<number, string> = {
+const WEATHER_CODES = {
   0: 'clearSky',
   1: 'mainlyClear',
   2: 'partlyCloudy',
@@ -27,8 +27,12 @@ const WEATHER_CODES: Record<number, string> = {
   95: 'thunderstorm',
   96: 'thunderstormSlightHail',
   99: 'thunderstormHeavyHail',
-}
+} as const
 
-export function getWeatherCondition(code: number): string {
-  return WEATHER_CODES[code] ?? 'unknown'
+export type WeatherCondition =
+  | (typeof WEATHER_CODES)[keyof typeof WEATHER_CODES]
+  | 'unknown'
+
+export function getWeatherCondition(code: number): WeatherCondition {
+  return (WEATHER_CODES as Record<number, WeatherCondition>)[code] ?? 'unknown'
 }

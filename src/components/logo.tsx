@@ -1,0 +1,93 @@
+interface LogoProps {
+  className?: string
+}
+
+export function Logo({ className }: LogoProps) {
+  return (
+    <svg
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="16" cy="14" r="6" className="fill-foreground" />
+      <line
+        x1="16"
+        y1="4"
+        x2="16"
+        y2="6"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="16"
+        y1="22"
+        x2="16"
+        y2="24"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="6"
+        y1="14"
+        x2="8"
+        y2="14"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="24"
+        y1="14"
+        x2="26"
+        y2="14"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="8.93"
+        y1="6.93"
+        x2="10.34"
+        y2="8.34"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="21.66"
+        y1="19.66"
+        x2="23.07"
+        y2="21.07"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="8.93"
+        y1="21.07"
+        x2="10.34"
+        y2="19.66"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <line
+        x1="21.66"
+        y1="8.34"
+        x2="23.07"
+        y2="6.93"
+        className="stroke-foreground"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M10 27C10 24.5 12 23 14.5 23C15.5 21.5 17 21 19 21C22.5 21 24 23 24 25.5C25.5 25.5 27 26.5 27 28H8C8 26.5 9 27 10 27Z"
+        className="fill-foreground/80"
+      />
+    </svg>
+  )
+}

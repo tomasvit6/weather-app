@@ -16,6 +16,8 @@
     "windSpeed": "Wind speed",
     "error": "Failed to load weather data",
     "noLocation": "Search for a location to see the weather",
+    "yourLocation": "Your Location",
+    "lastUpdated": "Updated {time}",
     "condition": {
       "clearSky": "Clear sky",
       "mainlyClear": "Mainly clear",
@@ -52,12 +54,19 @@
     "title": "Search History",
     "empty": "No recent searches",
     "clear": "Clear history",
+    "remove": "Remove {location} from history",
     "searchedAt": "Searched {time}"
   },
   "error": {
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Please try again.",
     "tryAgain": "Try again"
+  },
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "footer": {
+    "credit": "Powered by Open-Meteo. Built with Next.js."
   },
   "notFound": {
     "title": "Page not found",

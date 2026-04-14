@@ -43,43 +43,42 @@ Weather web app that allows users to search for a location with autocomplete, vi
 - Clean up unused `storage.ts` placeholder (Zustand store handles persistence)
 - **Commit:** `feat: implement weather and geocoding API routes with Zod validation`
 
-### Phase 3 — Core UI Components
+### Phase 3 — Core UI Components, States & Theming ✅
 
-- Build `SearchBar` component — text input with debounced autocomplete dropdown, location selection
-- Build `WeatherCard` component — display current weather (temperature, condition, humidity, wind, feels-like)
-- Build `SearchHistory` component — list of recent searches with click-to-search, clear history, remove individual entries
-- Wire up components with React Query hooks and Zustand store
+- Build `SearchBar` component — debounced autocomplete combobox with keyboard navigation, ARIA combobox pattern
+- Build `WeatherCard` component — loading skeleton, error, empty, and loaded states with weather icon mapping
+- Build `SearchHistory` component — Zustand store integration, hydration-safe rendering, relative timestamps
+- Build `WeatherApp` client orchestrator — manages selected location state, wires components together
+- Create weather condition → Lucide icon mapping (`weather-icons.ts`)
+- Add loading states with Skeleton components, error states with AlertTriangle, empty states with muted icons
+- Add header with custom SVG logo and footer
+- Set up next-themes for dark/light mode toggle with sun/moon animated icon
+- Add visual depth — subtle grey background (`bg-muted/40`), soft card shadows
+- Add Sonner Toaster to layout for toast notifications
+- Add history store deduplication by location id
 - **Commit:** `feat: implement search bar with autocomplete, weather display, and search history`
 
-### Phase 4 — Integration & Loading/Error/Empty States
+### Phase 4 — Testing
 
-- Connect all components end-to-end
-- Add loading states with Skeleton components
-- Add error states with Sonner toast notifications and retry buttons
-- Add empty states (no search yet, no results found)
-- **Commit:** `feat: integrate components with loading, error, and empty states`
-
-### Phase 5 — Dark Mode & Animations
-
-- Set up next-themes for dark/light mode toggle
-- Add Motion animations for weather card transitions
-- Add smooth transitions for search dropdown, history list
-- Responsive design polish (mobile-first)
-- **Commit:** `feat: add dark mode support and UI animations`
-
-### Phase 6 — Testing
-
-- Unit tests for lib/ functions (API clients, query keys, weather codes)
+- Unit tests for lib/ functions (API clients, query keys, weather codes, weather icons)
 - Component tests for SearchBar, WeatherCard, SearchHistory
 - Test loading, error, and empty states
 - Test user interactions (search, select location, clear history)
 - **Commit:** `test: add unit and component tests`
 
-### Phase 7 — Documentation & Final Polish
+### Phase 5 — Polish & Production Hardening
+
+- API response caching on `/api/weather` and `/api/geocoding` routes (Cache-Control headers, stale-while-revalidate)
+- Rate-limit handling — detect 429 responses from Open-Meteo, return appropriate error to client, show user-friendly toast
+- Motion animations for weather card transitions, search dropdown appear/disappear
+- Responsive design polish
+- Final accessibility audit
+- **Commit:** `feat: add API caching, rate-limit handling, and UI animations`
+
+### Phase 6 — Documentation
 
 - Update README with setup instructions, screenshots, architecture overview
 - Update AI_PROMPTS.md with all phases
-- Final accessibility audit
 - Verify production build
 - **Commit:** `docs: update README and finalize documentation`
 
@@ -89,9 +88,8 @@ Weather web app that allows users to search for a location with autocomplete, vi
 chore: initial project setup with Next.js, Tailwind, shadcn/ui
 feat: implement weather and geocoding API routes with Zod validation
 feat: implement search bar with autocomplete, weather display, and search history
-feat: integrate components with loading, error, and empty states
-feat: add dark mode support and UI animations
 test: add unit and component tests
+feat: add API caching, rate-limit handling, and UI animations
 docs: update README and finalize documentation
 ```
 

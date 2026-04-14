@@ -113,3 +113,72 @@ Reviewed the task myself. Then I gave AI all the information about the task, all
 **Used for:** Zod schemas, API routes, weather codes, client API functions, React Query hooks, design system docs, implementation plan updates, unit + contract tests
 
 **Commit:** `feat: implement weather and geocoding API routes with Zod validation`
+
+## Phase 3 — Core UI Components, States & Theming
+
+**Third prompt:**
+
+> Task: Build core UI components — SearchBar, WeatherCard, SearchHistory
+>
+> Context
+>
+> Working directory: /Users/tomas/Documents/Coding/weather-app
+>
+> Read CLAUDE.md and docs/design-system.md before starting — they define coding conventions, design philosophy, typography hierarchy, and accessibility requirements.
+>
+> This is a weather web app (senior engineer take-home for Axiology). Phase 1 (scaffolding) and Phase 2 (API layer) are complete. This is Phase 3 — building the three core UI components and wiring them into the page. After this phase the app should be fully functional end-to-end.
+>
+> What already exists (DO NOT recreate): use-debounce, use-weather, use-geocoding hooks; history-store Zustand store; types; weather-codes; utils; i18n messages; shadcn components; page/layout/error placeholders.
+>
+> Requirements:
+>
+> 1. SearchBar — debounced autocomplete combobox with keyboard navigation (ArrowDown/Up/Enter/Escape), click-outside-to-close, ARIA combobox pattern (role="combobox", aria-expanded, aria-controls, aria-activedescendant, role="listbox", role="option"), Search/Loader2 icons
+> 2. WeatherCard — four states (empty/loading/error/loaded), typography hierarchy from design system (text-6xl temperature, text-lg condition, text-sm details), weather icon mapping, details grid (feels like, humidity, wind), aria-live="polite"
+> 3. SearchHistory — Zustand integration with hydration safety (useSyncExternalStore pattern from CLAUDE.md), relative timestamps via date-fns, delete/clear buttons with i18n aria-labels, semantic ul/li structure
+> 4. Weather condition icon mapping — src/lib/weather-icons.ts, all WMO codes mapped to Lucide icons
+> 5. Client orchestrator — src/components/weather-app.tsx, manages selectedLocation state, wires components, adds to history via useEffect when weather data loads
+> 6. Update page.tsx — replace three placeholder imports with WeatherApp
+> 7. Add Toaster to layout
+> 8. History store deduplication — filter existing entries with same location id before prepending
+> 9. Git commit, verify build/lint, test full flow in browser
+
+**Refinements during implementation:**
+
+- Code review caught hardcoded English in aria-label (`Remove ${name} from history`) — added `history.remove` i18n key with ICU `{location}` parameter.
+- Fixed "no results" flash during debounce — the 300ms debounce window showed "No locations found" before the query fired. Added `debouncedQuery === query` guard so the empty state only appears after the debounce settles.
+- Removed unused `inputRef` from SearchBar.
+- Replaced `setState` in effects (ESLint `react-hooks/set-state-in-effect` violations) with derived state pattern using `isFocused`/`isDismissed` flags instead of `isOpen` state + effects.
+- Fixed `react-hooks/static-components` lint error — weather icon components assigned to variables during render. Used `createElement()` instead of JSX to avoid the "component created during render" violation.
+- Added header with custom SVG logo (sun + cloud, uses `fill-foreground` for theme adaptation) and footer with i18n credit text.
+- Set up `next-themes` ThemeProvider with system default, added sun/moon theme toggle in header.
+- Added visual depth — `bg-muted/40` on body for subtle grey background, soft diffuse `box-shadow` on cards (low-opacity, no hard edges), separate light/dark shadow values.
+- Added `weather.lastUpdated` i18n key and "Updated X ago" display in WeatherCard using React Query's `dataUpdatedAt` timestamp, with a `useRelativeTime` hook that ticks every 30s.
+- Added `refetchInterval: 5 * 60 * 1000` to `useWeather` hook for automatic background refetching since we don't use WebSockets.
+- Updated `implementation-plan.md` — merged Phases 3/4/5 into single Phase 3, added Phase 5 "Polish & Production Hardening" for API response caching and rate-limit handling.
+
+**Additional prompts (iterative refinements):**
+
+- Add header/footer with custom SVG logo and dark/light theme toggle
+- Improve visual depth — elevated cards on a subtle grey background with soft, diffuse shadows
+- Since we can't push live updates without sockets, show "last updated" timestamp with automatic background refetching on an interval
+- Add glassmorphism to the weather card — animated gradient blobs behind a frosted glass panel, tinted by weather condition
+- Replace `Record<string, ...>` with a type-safe `WeatherCondition` union derived from the weather codes map
+- Auto-detect user's location on initial load via browser geolocation, resolve city/country name via reverse geocoding
+- Add unit and contract tests for the new reverse geocoding route
+
+**Additional refinements during implementation:**
+
+- Glassmorphism weather card — animated gradient blobs behind a `backdrop-blur-2xl bg-white/80` glass panel. Blobs use percentage-based sizes with `blur-[80px]` for smooth gradient washes, not visible circles. Three blob keyframe animations (12s/15s/18s) with `prefers-reduced-motion` respect.
+- Weather condition colors — `WeatherCondition` union type derived from `as const` weather codes map. Threaded through `WeatherData.condition`, `SearchHistoryEntry.condition`, all icon/color/gradient mappings. Eliminated all `Record<string, ...>` in favor of `Record<WeatherCondition, ...>` for compile-time exhaustiveness checking.
+- Weather-contextual color system — amber for clear/sunny, blue for rain, violet for thunderstorms, cyan for freezing, sky for snow. Applied to weather icon, condition text, and glassmorphism blob gradients. Detail row icons get individual colors (orange thermometer, blue droplets, teal wind).
+- Iterative mobile responsive fixes — detail boxes replaced with flat `divide-x` row layout, responsive text sizes (`text-[11px] sm:text-xs`), responsive padding (`px-5 sm:px-8`).
+- Browser geolocation on initial load — `useGeolocation` hook requests `navigator.geolocation.getCurrentPosition`, reverse geocodes via new `/api/reverse-geocoding` route (Nominatim API) to get city/country name. Auto-detected locations (`id: 0`) are excluded from search history.
+- Reverse geocoding API route — `/api/reverse-geocoding` proxies Nominatim with `accept-language=en`, falls back through `city → town → village → name` for the location name, uppercases country code.
+- Unit tests for reverse geocoding route — input validation, response transformation (city/town/village fallback, country code uppercasing), error handling. Follows same pattern as existing API route tests.
+- Contract test for Nominatim — verifies response shape against live API (address structure, country_code format). Runs via `npm run test:contract`.
+- Scroll-to-weather on history click — `scrollIntoView({ behavior: 'smooth' })` with `scroll-mt-20` to clear sticky header.
+- Sticky header with `backdrop-blur-md bg-background/80`.
+
+**Used for:** SearchBar, WeatherCard, SearchHistory, WeatherApp orchestrator, weather icon mapping, header/footer, theme toggle, ThemeProvider, page integration, glassmorphism, weather colors, type-safe weather conditions, geolocation, reverse geocoding, auto-refetch with "last updated" display
+
+**Commit:** `feat: implement search bar with autocomplete, weather display, and search history`

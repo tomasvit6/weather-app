@@ -1,4 +1,5 @@
 import { api } from '@/lib/axios'
+import type { WeatherCondition } from '@/lib/weather-codes'
 
 export interface WeatherResponse {
   temperature: number
@@ -6,7 +7,7 @@ export interface WeatherResponse {
   humidity: number
   windSpeed: number
   weatherCode: number
-  condition: string
+  condition: WeatherCondition
   isDay: boolean
   timestamp: string
 }

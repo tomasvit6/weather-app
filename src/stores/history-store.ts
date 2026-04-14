@@ -16,7 +16,10 @@ export const useHistoryStore = create<HistoryState>()(
       entries: [],
       addEntry: (entry) =>
         set((state) => ({
-          entries: [entry, ...state.entries].slice(0, 10),
+          entries: [
+            entry,
+            ...state.entries.filter((e) => e.id !== entry.id),
+          ].slice(0, 10),
         })),
       removeEntry: (id) =>
         set((state) => ({

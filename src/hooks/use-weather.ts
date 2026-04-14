@@ -12,6 +12,7 @@ export function useWeather(location: Location | null) {
     ),
     queryFn: () => getWeather(location!.latitude, location!.longitude),
     enabled: location !== null,
+    refetchInterval: 5 * 60 * 1000,
     select: (data: WeatherResponse): WeatherData => ({
       location: location!,
       ...data,
